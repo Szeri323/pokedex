@@ -20,7 +20,7 @@ type Locations struct {
 	Results  []Location
 }
 
-func commandMap(config *Config) error {
+func commandMap(config *Config, args []string) error {
 	url := "https://pokeapi.co/api/v2/location-area/"
 	if config.next != "" {
 		url = config.next
@@ -42,15 +42,14 @@ func commandMap(config *Config) error {
 		log.Fatal(err)
 	}
 
+	// Store in cache
+	config.cache.Add(url, body)
+
 	var locations Locations
 	err = json.Unmarshal(body, &locations)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	println(locations.Count)
-	println(locations.Next)
-	println(locations.Previous)
 
 	for key, value := range locations.Results {
 		fmt.Printf("%d: %s\n", key, value.Name)
@@ -63,7 +62,7 @@ func commandMap(config *Config) error {
 	return nil
 }
 
-func commandMapBack(config *Config) error {
+func commandMapBack(config *Config, args []string) error {
 	url := "https://pokeapi.co/api/v2/location-area/"
 	if config.previous != "" {
 		url = config.previous
@@ -85,15 +84,14 @@ func commandMapBack(config *Config) error {
 		log.Fatal(err)
 	}
 
+	// Store in cache
+	config.cache.Add(url, body)
+
 	var locations Locations
 	err = json.Unmarshal(body, &locations)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	println(locations.Count)
-	println(locations.Next)
-	println(locations.Previous)
 
 	for key, value := range locations.Results {
 		fmt.Printf("%d: %s\n", key, value.Name)
@@ -103,5 +101,6 @@ func commandMapBack(config *Config) error {
 	if locations.Previous != nil {
 		config.previous = *locations.Previous
 	}
+
 	return nil
 }
